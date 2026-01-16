@@ -16,9 +16,11 @@ A powerful tool to synchronize **TickTick notes** with local **Markdown files** 
 
 - **🖥️ System Tray App / 系统托盘应用**:
   - Runs silently in the background.
-  - Quick access to Start/Stop sync and open local folder.
+  - Quick access to Pause/Resume sync and open local folder.
+  - **Start with Windows** toggle for auto-start on boot.
   - 静默后台运行。
-  - 快速开启/停止同步，打开本地文件夹。
+  - 快速暂停/恢复同步，打开本地文件夹。
+  - **开机自启动**开关，支持 Windows 启动时自动运行。
 
 - **📂 Smart Organization / 智能整理**:
   - Automatically organizes notes into folders based on `func_level` tags.
@@ -32,14 +34,40 @@ A powerful tool to synchronize **TickTick notes** with local **Markdown files** 
 
 ## 🚀 Getting Started / 快速开始
 
-### Prerequisites / 前置条件
+### Option 1: Use Pre-built Executable (Recommended) / 方式一：使用预编译版本（推荐）
+
+**For end users who just want to use the tool:**
+**适合只想使用工具的终端用户：**
+
+1. Download `TickTickSync.exe` from the [Releases](../../releases) page.
+   从 [Releases](../../releases) 页面下载 `TickTickSync.exe`。
+2. Run the executable - a cloud icon will appear in your system tray.
+   运行程序 - 系统托盘会出现云朵图标。
+3. Right-click the icon → Enable "Start with Windows" for auto-start.
+   右键图标 → 启用 "Start with Windows" 实现开机自启。
+
+**No Python installation required! / 无需安装 Python！**
+
+---
+
+### Option 2: Run from Source / 方式二：从源码运行
+
+**For developers or users who want to modify the code:**
+**适合开发者或想修改代码的用户：**
+
+#### Prerequisites / 前置条件
 - Windows OS
 - [TickTick Desktop for Windows](https://ticktick.com/about/download) installed & logged in
 - Python 3.8+
 
-### Installation / 安装
+#### Installation / 安装
 1. Clone this repository
    克隆此仓库
+   ```powershell
+   git clone https://github.com/kevinlasnh/TickTick-Sync.git
+   cd TickTick-Sync
+   ```
+
 2. Install dependencies:
    安装依赖:
    ```powershell
@@ -47,7 +75,7 @@ A powerful tool to synchronize **TickTick notes** with local **Markdown files** 
    ```
    *(requirements: watchdog, requests, pystray, Pillow, pywin32)*
 
-### Usage / 使用
+#### Usage / 使用
 Run the system tray application:
 运行系统托盘程序:
 
@@ -59,6 +87,19 @@ python tray_app.py
 - Right-click for menu options.
 - 系统托盘会出现一个**云朵图标**。
 - 右键点击查看菜单选项。
+
+#### Build Executable (Optional) / 打包为可执行文件（可选）
+
+To build your own `.exe` file:
+打包成自己的 `.exe` 文件：
+
+```powershell
+pip install pyinstaller
+pyinstaller --onefile --noconsole --name "TickTickSync" tray_app.py
+```
+
+The executable will be in `dist/TickTickSync.exe`.
+可执行文件将生成在 `dist/TickTickSync.exe`。
 
 ---
 
@@ -83,4 +124,24 @@ Moved from legacy local SQLite sync to **Direct Cloud API Sync**:
 - `tray_app.py`: Main entry point (GUI). / 主程序入口 (GUI)。
 - `daemon.py`: Core sync logic (API calls, file watching). / 核心同步逻辑。
 - `dev_scripts/`: Debugging and analysis tools. / 调试与分析工具。
-- `legacy/`: Old SQLite-based sync scripts. / 旧版 SQLite 同步脚本。
+- `legacy/`: Old SQLite-based sync scripts. / 旧版 SQLite 同步脚本。- `ISSUES.md`: Known issues and bug tracking. / 已知问题和 Bug 追踪。
+- `CHANGELOG.md`: Development log and version history. / 开发日志和版本历史。
+- `CONTRIBUTING.md`: Developer guidelines (includes AI Agent rules). / 开发者指南（包含 AI Agent 规范）。
+
+---
+
+## 🤝 Contributing / 贡献
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for developer guidelines, including:
+查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解开发指南，包括：
+
+- AI Agent workflow requirements / AI Agent 工作流要求
+- Documentation standards (bilingual) / 文档标准（双语）
+- Code contribution process / 代码贡献流程
+
+---
+
+## 📝 License / 许可证
+
+This project is open source. Feel free to use, modify, and distribute.
+本项目开源，可自由使用、修改和分发。

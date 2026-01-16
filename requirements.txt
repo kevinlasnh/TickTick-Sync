@@ -1,0 +1,19 @@
+# TickTick-Sync Dependencies
+
+# File system monitoring for detecting local file changes
+watchdog>=3.0.0
+
+# HTTP client for TickTick Cloud API calls
+requests>=2.31.0
+
+# System tray icon and menu
+pystray>=0.19.0
+
+# Image processing for creating tray icon
+Pillow>=10.0.0
+
+# Windows-specific: registry access for auto-start feature
+pywin32>=306
+
+# Optional: For building executable
+# pyinstaller>=6.0.0

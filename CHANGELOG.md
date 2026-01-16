@@ -15,6 +15,24 @@ Added a toggle in the tray menu to enable/disable auto-start with Windows.
 - 使用 `pythonw.exe` 静默运行（无控制台窗口）
 - 动态菜单项显示当前状态: `[ON]` / `[OFF]`
 
+### 📦 Packaging / 打包
+
+Added support for building standalone executable using PyInstaller.
+添加了使用 PyInstaller 打包为独立可执行文件的支持。
+
+**Features / 特性**:
+- Single-file `.exe` (~20MB) with no Python installation required
+- `--noconsole` mode for silent background execution
+- Fixed `sys.stdout` handling for noconsole compatibility
+- 单文件 `.exe`（约 20MB），无需安装 Python
+- `--noconsole` 模式实现静默后台运行
+- 修复了 noconsole 兼容性的 `sys.stdout` 处理
+
+**Build Command / 打包命令**:
+```powershell
+pyinstaller --onefile --noconsole --name "TickTickSync" tray_app.py
+```
+
 ### 🐛 Bug Fixes / Bug 修复
 - **UI-001**: Fixed menu status not updating in real-time (use dynamic callbacks)
 - **UI-002**: Replaced emoji with ASCII text for compatibility
