@@ -1,0 +1,17 @@
+# Backups (auto-generated before each push)
+backups/
+
+# Old temp notes (notes are now in Personal_dataBase)
+Note_temp/
+
+# Exploration scripts
+explore_db.py
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
