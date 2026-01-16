@@ -1,5 +1,30 @@
 # Development Log / 开发日志
 
+## 2026-01-16: Auto-Start Feature & UI Fixes / 开机自启动功能与 UI 修复
+
+### ✨ New Feature: Start with Windows / 新功能：Windows 开机自启动
+
+Added a toggle in the tray menu to enable/disable auto-start with Windows.
+在托盘菜单中添加了启用/禁用 Windows 开机自启动的开关。
+
+**Implementation / 实现方式**:
+- Uses Windows Registry: `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`
+- Runs with `pythonw.exe` for silent execution (no console window)
+- Dynamic menu item shows current state: `[ON]` / `[OFF]`
+- 使用 Windows 注册表: `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`
+- 使用 `pythonw.exe` 静默运行（无控制台窗口）
+- 动态菜单项显示当前状态: `[ON]` / `[OFF]`
+
+### 🐛 Bug Fixes / Bug 修复
+- **UI-001**: Fixed menu status not updating in real-time (use dynamic callbacks)
+- **UI-002**: Replaced emoji with ASCII text for compatibility
+- **UI-003**: Fixed pause action delay (replaced blocking sleep with polling loop)
+- **UI-001**: 修复菜单状态不实时更新（使用动态回调）
+- **UI-002**: 用 ASCII 文本替代 Emoji 以提高兼容性
+- **UI-003**: 修复暂停操作延迟（用轮询循环替代阻塞 sleep）
+
+---
+
 ## 2026-01-16: Cloud API Discovery & Major Rewrite / 云端 API 发现与重大重写
 
 ### 🎉 Breakthrough: Direct Cloud API Sync / 突破：直接云端 API 同步
@@ -30,6 +55,12 @@ AFTER (Cloud API):  Edit → HTTP POST → Cloud → All devices sync instantly!
 - `tray_app.py`: Updated to use new cloud-based daemon
 - `daemon.py`: 现在使用 `CloudSyncDaemon`，通过 API 调用而非 SQLite 写入
 - `tray_app.py`: 更新为使用新的云端守护进程
+
+### UI/UX Improvements / 体验优化
+- **High-Res Icon**: New anti-aliased cloud icon generated programmatically.
+- **Dynamic Menu**: Replaced confusing checkboxes with clear "Pause/Resume" actions and Status indicator.
+- **高清图标**: 程序生成的抗锯齿云朵图标。
+- **动态菜单**: 将令人困惑的复选框替换为清晰的"暂停/恢复"操作和状态指示器。
 
 ---
 

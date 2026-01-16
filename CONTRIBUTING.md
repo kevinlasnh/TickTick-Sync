@@ -1,5 +1,54 @@
 # CONTRIBUTING.md - Developer Guidelines / 开发指南
 
+## 🤖 AI Agent Guidelines / AI Agent 操作规范
+> **For AI Agents (Copilot, Claude, etc.)**: You MUST follow these rules when working on this project.
+> 
+> **面向 AI Agent（Copilot、Claude 等）**：在此项目中工作时必须遵循以下规则。
+
+### Automatic Documentation Requirements / 自动文档记录要求
+
+1. **CHANGELOG.md - Development Log / 开发日志**
+   - **When to update**: After implementing any feature, fix, or architectural change.
+   - **What to record**: 
+     - Date and change title (bilingual)
+     - Problem description and root cause analysis
+     - Solution approach and implementation details
+     - Files modified
+   - **何时更新**：实现任何功能、修复或架构变更后。
+   - **记录内容**：
+     - 日期和变更标题（中英双语）
+     - 问题描述和根因分析
+     - 解决方案和实现细节
+     - 修改的文件
+
+2. **ISSUES.md - Bug & Feature Tracking / Bug 与功能追踪**
+   - **When to update**:
+     - New bug discovered → Add new issue entry
+     - Bug fixed → Update status to "✅ Fixed" and add "Fix" description
+     - New limitation found → Document in Limitations section
+   - **Issue Format**:
+     ```markdown
+     ### [CATEGORY-XXX] Issue Title / 问题标题
+     - **Severity**: Critical/High/Medium/Low
+     - **Status**: Open / ✅ Fixed
+     - **Description**: Bilingual description
+     - **Fix**: (if fixed) What was done to resolve it
+     ```
+   - **何时更新**：
+     - 发现新 Bug → 添加新问题条目
+     - Bug 修复 → 更新状态为 "✅ Fixed" 并添加 "Fix" 描述
+     - 发现新限制 → 记录到 Limitations 章节
+
+3. **Workflow Checklist / 工作流检查清单**
+   Before completing any task, verify:
+   完成任务前，验证：
+   - [ ] Code changes are tested/verified / 代码变更已测试验证
+   - [ ] CHANGELOG.md updated if feature/architecture changed / 如有功能/架构变更，已更新 CHANGELOG.md
+   - [ ] ISSUES.md updated if bug fixed or discovered / 如修复或发现 Bug，已更新 ISSUES.md
+   - [ ] All documentation is bilingual (Chinese/English) / 所有文档均为中英双语
+
+---
+
 ## 📝 Documentation & Knowledge Management / 文档与知识管理
 > **Crucial Rule**: Any new development idea, architectural change, or significant feature implementation MUST be recorded in `CHANGELOG.md` immediately. All documentation MUST be bilingual (Chinese/English).
 > 

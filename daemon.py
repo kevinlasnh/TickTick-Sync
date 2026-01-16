@@ -17,8 +17,9 @@ from datetime import datetime, timedelta
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-# Fix Windows console encoding
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+# Fix Windows console encoding (only if stdout exists, e.g., not in --noconsole mode)
+if sys.stdout is not None and hasattr(sys.stdout, 'buffer'):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Configuration
 TICKTICK_DB_PATH = Path(os.environ['APPDATA']) / 'Tick_Tick' / 'TickTick.db'
@@ -26,12 +27,18 @@ LOCAL_DOC_DIR = Path(r'C:\Zero\Doc\Local\Life\Personal_dataBase')
 POLL_INTERVAL = 10  # Seconds between cloud checks
 API_BASE = 'https://api.dida365.com/api/v2'
 
-# Logging Setup
+# Logging Setup - Use NullHandler if no console available
+log_handlers = []
+if sys.stdout is not None:
+    log_handlers.append(logging.StreamHandler(sys.stdout))
+else:
+    log_handlers.append(logging.NullHandler())
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(message)s',
     datefmt='%H:%M:%S',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    handlers=log_handlers
 )
 logger = logging.getLogger(__name__)
 
