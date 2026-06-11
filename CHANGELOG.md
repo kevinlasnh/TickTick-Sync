@@ -1,5 +1,48 @@
 # Development Log / 开发日志
 
+## 2026-01-16: Robust Sync V2 - Deletion & Rename Support / 健壮同步 V2 - 删除与重命名支持
+
+### ✨ Features / 新特性
+
+- **🗑️ Bi-directional Deletion Sync / 双向删除同步**:
+  - Deleting a local `.md` file now automatically deletes (or completes) the corresponding task in TickTick cloud.
+  - 删除本地 `.md` 文件现在会自动删除（或完成）滴答清单云端的相应任务。
+  - **Fixes**: Previously, deleted files would be re-downloaded ("resurrected") by the pull logic.
+  - **修复**: 之前，已删除的文件会被拉取逻辑重新下载（"诈尸"）。
+
+- **✏️ Smart Rename Sync / 智能重命名同步**:
+  - Renaming a local `.md` file now updates the task title in TickTick without deleting/recreating the task.
+  - 重命名本地 `.md` 文件现在会更新滴答清单中的任务标题，而不会删除/重建任务。
+
+### 🔧 Technical Improvements / 技术改进
+
+- **In-Memory State Map / 内存状态映射**:
+  - `daemon.py` now maintains a `path_map {filepath: task_id}`.
+  - Allows tracking of files even after they are deleted or moved.
+  - `daemon.py` 现在维护一个 `path_map {filepath: task_id}`。
+  - 允许在文件被删除或移动后继续追踪它们。
+
+- **Event Handling / 事件处理**:
+  - Added `on_deleted` and `on_moved` handlers to `CloudSyncDaemon`.
+  - 为 `CloudSyncDaemon` 添加了 `on_deleted` 和 `on_moved` 处理程序。
+
+---
+
+# Development Log / 开发日志
+
+## 🚧 In Development / 开发中
+
+### 📂 Folder & Tag Synchronization / 文件夹与标签同步
+- **Goal**: Achieve 1:1 mirroring between local folder structure and TickTick tags.
+- **目标**: 实现本地文件夹结构与滴答清单标签的 1:1 镜像。
+- **Planned Features / 计划功能**:
+  - **Local Move -> Cloud Tag**: Dragging files updates tags.
+  - **Cloud Tag -> Local Move**: Changing tags moves files.
+  - **Dynamic Creation**: Creating folders/tags automatically creates counterparts.
+  - **本地移动 -> 云端标签**: 拖拽文件更新标签。
+  - **云端标签 -> 本地移动**: 更改标签移动文件。
+  - **动态创建**: 创建文件夹/标签自动创建对应项。
+
 ## 2026-01-16: Auto-Start Feature & UI Fixes / 开机自启动功能与 UI 修复
 
 ### ✨ New Feature: Start with Windows / 新功能：Windows 开机自启动

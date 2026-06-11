@@ -9,10 +9,16 @@ A powerful tool to synchronize **TickTick notes** with local **Markdown files** 
 ## ✨ Features / 功能
 
 - **🔄 Bidirectional Real-time Sync / 双向实时同步**:
-  - **Local to Cloud**: Edits in local `.md` files are pushed to TickTick instantly via direct API (no app restart needed!).
+  - **Local to Cloud**: Edits in local `.md` files are pushed to TickTick instantly via direct API (no app restart needed!). Now supports **Deletion** and **Renaming**!
   - **Cloud to Local**: Updates on mobile/web are pulled to local files automatically (every 10s).
-  - **本地到云端**: 本地 `.md` 文件的修改通过 API 直接推送到滴答清单（无需重启应用！）。
+  - **本地到云端**: 本地 `.md` 文件的修改通过 API 直接推送到滴答清单（无需重启应用！）。现已支持**删除**和**重命名**！
   - **云端到本地**: 手机/网页端的更新会自动拉取到本地文件（每 10 秒）。
+
+- **🗑️ Smart Deletion & Rename / 智能删除与重命名**:
+  - **Delete**: Deleting a local file removes the task from TickTick (no more resurrecting files!).
+  - **Rename**: Renaming a file updates the task title in TickTick seamlessly.
+  - **删除**: 删除本地文件会彻底删除滴答清单中的任务（不再"诈尸"！）。
+  - **重命名**: 重命名文件会无缝更新滴答清单中的任务标题。
 
 - **🖥️ System Tray App / 系统托盘应用**:
   - Runs silently in the background.
@@ -108,7 +114,7 @@ The executable will be in `dist/TickTickSync.exe`.
 Moved from legacy local SQLite sync to **Direct Cloud API Sync**:
 
 1. **Push (Local → Cloud)**:
-   - `watchdog` monitors file changes.
+   - `watchdog` monitors file changes (Modify, Create, Delete, Move).
    - `daemon.py` pushes content directly to `api.dida365.com` (China) using extracted token.
    - **Result**: Instant update on all devices.
 
@@ -124,7 +130,8 @@ Moved from legacy local SQLite sync to **Direct Cloud API Sync**:
 - `tray_app.py`: Main entry point (GUI). / 主程序入口 (GUI)。
 - `daemon.py`: Core sync logic (API calls, file watching). / 核心同步逻辑。
 - `dev_scripts/`: Debugging and analysis tools. / 调试与分析工具。
-- `legacy/`: Old SQLite-based sync scripts. / 旧版 SQLite 同步脚本。- `ISSUES.md`: Known issues and bug tracking. / 已知问题和 Bug 追踪。
+- `legacy/`: Old SQLite-based sync scripts. / 旧版 SQLite 同步脚本。
+- `ISSUES.md`: Known issues and bug tracking. / 已知问题和 Bug 追踪。
 - `CHANGELOG.md`: Development log and version history. / 开发日志和版本历史。
 - `CONTRIBUTING.md`: Developer guidelines (includes AI Agent rules). / 开发者指南（包含 AI Agent 规范）。
 

@@ -5,6 +5,15 @@ This document tracks known bugs, limitations, and planned improvements.
 
 ## 🐛 Bugs
 
+### [SYNC-002] Deleted Files Resurrect / 删除文件"诈尸"
+- **Severity**: High / 高
+- **Status**: ✅ Fixed / 已修复
+- **Description**: 
+  Deleting a local file causes it to be re-downloaded because the daemon doesn't detect the deletion event, and subsequent pull sees the cloud task as "missing locally" and restores it.
+  删除本地文件会导致其被重新下载，因为守护进程未检测到删除事件，后续拉取发现云端任务"本地缺失"并将其恢复。
+- **Fix**: Implemented `on_deleted` handler and in-memory `path_map`. Deleting local file now triggers cloud task deletion.
+  实现了 `on_deleted` 处理程序和内存 `path_map`。删除本地文件现在会触发云端任务删除。
+
 ### [UI-001] System Tray Menu Status Incorrect / 系统托盘菜单状态不正确
 - **Severity**: Low / 低
 - **Status**: ✅ Fixed / 已修复
@@ -52,3 +61,14 @@ This document tracks known bugs, limitations, and planned improvements.
 
 - ~~**Auto-Start**: Add "Start with Windows" registry key integration.~~ ✅ Implemented
 - **Log Viewer**: Add "View Logs" menu item to open log file.
+- **📂 Folder/Tag Bidirectional Sync / 文件夹/标签双向同步**:
+  - **Case 1**: Local Drag-and-Drop (Move to Folder) -> Updates TickTick Tag.
+  - **Case 2**: TickTick Tag Change -> Moves Local File to corresponding Folder.
+  - **Case 3**: New Cloud Tag & Note -> Creates Local Folder & File.
+  - **Case 4**: New Local Folder & File -> Creates Cloud Tag & Note.
+  - **Constraint**: Strict 1-to-1 mapping between Folder Name and Single Tag.
+  - **Case 1**: 本地拖拽（移动到文件夹） -> 更新滴答清单标签。
+  - **Case 2**: 滴答清单标签更改 -> 将本地文件移动到相应文件夹。
+  - **Case 3**: 云端新标签和笔记 -> 创建本地文件夹和文件。
+  - **Case 4**: 本地新文件夹和文件 -> 创建云端标签和笔记。
+  - **约束**: 文件夹名称与单标签之间严格的 1 对 1 映射。

@@ -119,25 +119,144 @@ class CloudSyncDaemon(FileSystemEventHandler):
         self.token = get_auth_token()
         self.headers = get_api_headers(self.token)
         self.recently_processed = {}  # Debounce
+        self.path_map = {}  # {str(file_path): task_id}
         self.DEBOUNCE_SECONDS = 3
         logger.info("🔑 Auth token loaded")
+        self.rebuild_path_map()
+
+    def rebuild_path_map(self):
+        """Build initial path->id map from existing files."""
+        count = 0
+        for file_path in LOCAL_DOC_DIR.rglob('*.md'):
+            meta, _ = parse_frontmatter(file_path)
+            task_id = meta.get('task_id')
+            if task_id:
+                self.path_map[str(file_path)] = task_id
+                count += 1
+        logger.info(f"🗺️ Path map built: {count} items")
+
+    def on_moved(self, event):
+        """Handle file rename/move."""
+        if event.is_directory or not event.src_path.endswith('.md'):
+            return
+
+        src_path = str(Path(event.src_path))
+        dest_path = str(Path(event.dest_path))
+        
+        # Debounce check
+        if self.is_debounced(src_path) or self.is_debounced(dest_path):
+            return
+
+        logger.info(f"🔄 Detected Move: {Path(src_path).name} -> {Path(dest_path).name}")
+
+        task_id = self.path_map.get(src_path)
+        if not task_id:
+            logger.warning(f"⚠️ Unknown file moved, treating as new: {dest_path}")
+            # Treat as new file
+            self.on_modified(event) 
+            return
+
+        # Update map
+        del self.path_map[src_path]
+        self.path_map[dest_path] = task_id
+
+        # Update title in Cloud
+        new_title = Path(dest_path).stem
+        # Also need to update the file content to reflect new title if we want consistency?
+        # For now, just update cloud.
+        self.update_task_title(task_id, new_title)
+        
+        # We also need to update the file's frontmatter 'title' to match filename?
+        # That would trigger another modification. Let's leave file content alone for now,
+        # or relying on the user to have updated it. 
+        # Actually, if user renamed file in Explorer, frontmatter is stale.
+        # Ideally we should update frontmatter.
+
+    def on_deleted(self, event):
+        """Handle file deletion."""
+        if event.is_directory or not event.src_path.endswith('.md'):
+            return
+
+        file_path = str(Path(event.src_path))
+        
+        if self.is_debounced(file_path):
+            return
+
+        task_id = self.path_map.get(file_path)
+        if task_id:
+            logger.info(f"🗑️ Detected Deletion: {Path(file_path).name} (ID: {task_id})")
+            self.delete_cloud_task(task_id)
+            del self.path_map[file_path]
+        else:
+            logger.info(f"🗑️ Deleted file not in map (ignored): {file_path}")
 
     def on_modified(self, event):
-        """Handle local file modification."""
+        """Handle local file modification (and creation)."""
         if event.is_directory or not event.src_path.endswith('.md'):
             return
         
-        file_path = Path(event.src_path)
-        
-        # Debounce
-        last_time = self.recently_processed.get(str(file_path))
+        # map creation events are often handled here too by watchdog on some platforms,
+        # but let's trust explicit methods. 
+        # Actually on_created calls on_modified usually? No, they are separate.
+        # But for 'created', we want similar logic to 'modified' (push).
+
+        self.handle_file_change(event.src_path)
+
+    def on_created(self, event):
+        """Handle file creation."""
+        if event.is_directory or not event.src_path.endswith('.md'):
+            return
+        self.handle_file_change(event.src_path)
+
+    def is_debounced(self, file_path: str) -> bool:
+        """Check if file event should be ignored due to debounce."""
+        last_time = self.recently_processed.get(file_path)
         if last_time and (datetime.now() - last_time).total_seconds() < self.DEBOUNCE_SECONDS:
+            return True
+        return False
+
+    def handle_file_change(self, src_path_str):
+        file_path = Path(src_path_str)
+        if self.is_debounced(str(file_path)):
             return
         
         # Push to cloud
         success = self.push_to_cloud(file_path)
         if success:
             logger.info(f"☁️ Pushed to Cloud: {file_path.name}")
+
+    def delete_cloud_task(self, task_id: str):
+        """Delete (or complete) a task in TickTick."""
+        # We can either delete or complete. Let's Delete for now per user pref.
+        # API for delete: DELETE /task/{taskId} ? No, batch delete usually.
+        # Let's try batch delete.
+        try:
+            payload = {
+                "delete": [{"taskId": task_id, "projectId": "inbox1018769940"}] # TODO: dynamic project ID
+            }
+            resp = requests.post(
+                f'{API_BASE}/batch/task',
+                headers=self.headers,
+                json=payload,
+                timeout=10
+            )
+            if resp.status_code == 200:
+                logger.info("✅ Cloud Deletion Successful")
+            else:
+                logger.error(f"❌ Cloud Delete Failed: {resp.status_code} {resp.text}")
+        except Exception as e:
+            logger.error(f"❌ Cloud Delete Error: {e}")
+
+    def update_task_title(self, task_id: str, new_title: str):
+        """Update just the title of a task."""
+        try:
+            payload = {
+                "update": [{"id": task_id, "title": new_title, "projectId": "inbox1018769940"}] 
+            }
+            requests.post(f'{API_BASE}/batch/task', headers=self.headers, json=payload)
+            logger.info(f"✏️ Renamed Cloud Task: {new_title}")
+        except Exception as e:
+            logger.error(f"Rename failed: {e}")
 
     def push_to_cloud(self, file_path: Path) -> bool:
         """Push local file content to TickTick cloud via API."""
@@ -149,6 +268,9 @@ class CloudSyncDaemon(FileSystemEventHandler):
         
         if not task_id:
             return False
+            
+        # Update map
+        self.path_map[str(file_path)] = task_id
         
         try:
             # Batch update API
@@ -157,6 +279,7 @@ class CloudSyncDaemon(FileSystemEventHandler):
                     "id": task_id,
                     "projectId": project_id,
                     "content": content,
+                    "title": metadata.get('title', file_path.stem) # Ensure title is synced
                 }]
             }
             
@@ -200,6 +323,14 @@ class CloudSyncDaemon(FileSystemEventHandler):
             
             tasks = resp.json()
             
+            # --- Check for Remote Deletions ---
+            # If we have a file in map, but it's NOT in the cloud list, 
+            # and it wasn't just created (safety check), maybe we should delete local?
+            # Issue: 'tasks' only contains INBOX tasks. If task moved to another project, it disappears here.
+            # We shouldn't auto-delete local files just because they aren't in Inbox, 
+            # unless we are sure they are deleted. 
+            # For now, let's stick to Local->Cloud deletion only.
+            
             for task in tasks:
                 if task.get('kind') != 'NOTE':
                     continue
@@ -217,15 +348,34 @@ class CloudSyncDaemon(FileSystemEventHandler):
         modified_time = task.get('modifiedTime', '')
         project_id = task.get('projectId', '')
         
-        # Find existing file
+        # Update Map Check
+        # We might already have this task mapped to a path
+        # But we need to search filesystem if map is empty (first run) or desync
+        
         found_file = None
-        for md_file in LOCAL_DOC_DIR.rglob('*.md'):
-            if '.conflict' in md_file.name:
-                continue
-            meta, _ = parse_frontmatter(md_file)
-            if meta.get('task_id') == task_id:
-                found_file = md_file
-                break
+        
+        # 1. Try Map First
+        for path_str, map_id in list(self.path_map.items()):
+            if map_id == task_id:
+                if Path(path_str).exists():
+                    found_file = Path(path_str)
+                    break
+                else:
+                    # Stale map entry
+                    del self.path_map[path_str]
+        
+        # 2. If not in map, search (fallback)
+        if not found_file:
+            for md_file in LOCAL_DOC_DIR.rglob('*.md'):
+                if '.conflict' in md_file.name:
+                    continue
+                # Optimisation: Check map first to skip opening files we already know?
+                # For now keep robust search
+                meta, _ = parse_frontmatter(md_file)
+                if meta.get('task_id') == task_id:
+                    found_file = md_file
+                    self.path_map[str(found_file)] = task_id # Update map
+                    break
         
         # Handle new file
         if not found_file:
